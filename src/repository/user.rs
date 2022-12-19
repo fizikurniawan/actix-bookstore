@@ -54,13 +54,9 @@ impl User {
         diesel::update(users.find(i))
             .set(&updated_user)
             .execute(conn)
-        // diesel::update(users::table)
-        //             .filter(id.eq(id))
-        //             .set(&updated_user)
-        //             .execute(conn)
     }
 
-    // pub fn delete(i: i32, conn: &Connection) -> QueryResult<usize> {
-    //     diesel::delete(people.find(i)).execute(conn)
-    // }
+    pub fn delete(i: i32, conn: &mut PgConnection) -> QueryResult<usize> {
+        diesel::delete(users.find(i)).execute(conn)
+    }
 }

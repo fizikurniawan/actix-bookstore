@@ -1,6 +1,10 @@
 use crate::{
     libs::{constants, error::ServiceError},
-    models::{filters::UserFilter, response::Page, user::{User, UserDTO}},
+    models::{
+        filters::UserFilter,
+        response::Page,
+        user::{User, UserDTO},
+    },
     DbPool,
 };
 use actix_web::{http::StatusCode, web};
@@ -30,7 +34,7 @@ pub fn find_by_id(id: i32, pool: &web::Data<DbPool>) -> Result<User, ServiceErro
         Ok(users) => Ok(users),
         Err(_) => Err(ServiceError::new(
             StatusCode::NOT_FOUND,
-            format!("Person with id {} not found", id),
+            format!("User with id {} not found", id),
         )),
     }
 }
@@ -56,6 +60,22 @@ pub fn update(
             Err(_) => Err(ServiceError::new(
                 StatusCode::INTERNAL_SERVER_ERROR,
                 constants::MESSAGE_CAN_NOT_UPDATE_DATA.to_string(),
+            )),
+        },
+        Err(_) => Err(ServiceError::new(
+            StatusCode::NOT_FOUND,
+            format!("User with id {} not found", id),
+        )),
+    }
+}
+
+pub fn delete(id: i32, pool: &web::Data<DbPool>) -> Result<(), ServiceError> {
+    match User::find_by_id(id, &mut pool.get().unwrap()) {
+        Ok(_) => match User::delete(id, &mut pool.get().unwrap()) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(ServiceError::new(
+                StatusCode::INTERNAL_SERVER_ERROR,
+                constants::MESSAGE_CAN_NOT_DELETE_DATA.to_string(),
             )),
         },
         Err(_) => Err(ServiceError::new(

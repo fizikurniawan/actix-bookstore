@@ -2,10 +2,10 @@ use crate::models::filters::UserFilter;
 use crate::models::user::UserDTO;
 use crate::{libs::constants, DbPool};
 
-use actix_web::{get, post, put, web, Error, HttpResponse, Result};
+use actix_web::{get, post, put, web, Error, HttpResponse, Result, delete};
 
 use crate::models::response::ResponseBody;
-use crate::services::user_service;
+use crate::services::user as user_service;
 
 #[get("")]
 pub async fn find_all(pool: web::Data<DbPool>) -> Result<HttpResponse, Error> {
@@ -56,3 +56,14 @@ pub async fn update(
         Err(err) => Ok(err.response()),
     }
 }
+
+#[delete("{id}")]
+pub async fn delete(id: web::Path<i32>, pool: web::Data<DbPool>) -> Result<HttpResponse> {
+    match user_service::delete(id.into_inner(), &pool) {
+        Ok(()) => {
+            Ok(HttpResponse::Ok().json(ResponseBody::new(constants::MESSAGE_OK, constants::EMPTY)))
+        }
+        Err(err) => Ok(err.response()),
+    }
+}
+
